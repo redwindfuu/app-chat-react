@@ -1,18 +1,21 @@
-import { UserAddOutlined } from '@ant-design/icons';
-import { Tooltip , Button , Avatar , Form , Input } from 'antd';
-import React from 'react';
-import styled from 'styled-components'
-import Message from '../Message'
+import { UserAddOutlined } from "@ant-design/icons";
+import { Tooltip, Button, Avatar, Form, Input, Alert } from "antd";
+import React from "react";
+import styled from "styled-components";
+import Message from "../Message";
 
-import { AppContext } from '../../Utils/App';
+import { AppContext } from "../../Utils/App";
+import { addDocument } from "../../service/firestore";
+import { AuthContext } from "../../Utils/Auth";
+import useFirestore from "../../hooks/useFirestore";
 
-const HeaderStyled =  styled.div`
-  display : flex;
-  justify-content : space-between;
-  height : 56px;
+const HeaderStyled = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: 56px;
   padding: 0 16px;
-  align-items : center;
-  border-bottom: 1px solid rgb(230 , 230, 230);
+  align-items: center;
+  border-bottom: 1px solid rgb(230, 230, 230);
   .header {
     &__info {
       display: flex;
@@ -29,7 +32,6 @@ const HeaderStyled =  styled.div`
   }
 `;
 
-
 const ButtonGroupStyled = styled.div`
   display: flex;
   align-items: center;
@@ -39,7 +41,7 @@ const WrapperStyled = styled.div`
   height: 100vh;
 `;
 
-const ContentStyled =  styled.div`
+const ContentStyled = styled.div`
   height: calc(100% - 56px);
   display: flex;
   flex-direction: column;
@@ -65,68 +67,108 @@ const MessageListStyled = styled.div`
 `;
 
 export default function ChatWindow() {
-  const { selectedRoom , members , setIsInviteMemberVisible} =
+  const [form] = Form.useForm();
+  const { selectedRoom, members, setIsInviteMemberVisible } =
     React.useContext(AppContext);
-  
+  const {
+    user: { uid, photoURL, displayName },
+  } = React.useContext(AuthContext);
+  const [inputValue, setInputValue] = React.useState("");
   const handleInvite = () => {
-    setIsInviteMemberVisible(true)
-  }
-  const handleInput = () => {
-    
-  }
-  
+    setIsInviteMemberVisible(true);
+  };
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  const handleOnSubmit = () => {
+    addDocument("messages", {
+      text: inputValue,
+      uid,
+      roomId: selectedRoom.id,
+      photoURL,
+      displayName,
+    });
+    form.resetFields(['message']);
+  };
+
+  const conditions = React.useMemo(() => ({
+    fieldName: 'roomId',
+    operator: '==',
+    compareValue: selectedRoom.id,
+  }),[selectedRoom.id])
+  const message = useFirestore('messages', conditions);
+
+
   return (
     <WrapperStyled>
-      <HeaderStyled>
-        <div className='header__info'>
-          <p className='header__title'>{selectedRoom.name}</p>
-          <span className='header__description'>{selectedRoom.description}</span>
-        </div>
-        <ButtonGroupStyled>
-          <Button 
-            icon={<UserAddOutlined/>} 
-            type="text"
-            onClick={handleInvite}
-          >
-            Mời
-          </Button>
-          <Avatar.Group size='small' maxCount={2}>
-            {members.map((member) => (
-                    <Tooltip title={member.displayName} key={member.id}>
-                      <Avatar src={member.photoURL}>
-                        {member.photoURL
-                          ? ''
-                          : member.displayName?.charAt(0)?.toUpperCase()}
-                      </Avatar>
-                    </Tooltip>
-                  ))}
-          </Avatar.Group>
-        </ButtonGroupStyled>
-      </HeaderStyled>
-      <ContentStyled>
-      <MessageListStyled >
-        <Message
-            key="{mes.id}"
-            text="{mes.text}"
-            photoURL="{mes.photoURL}"
-            displayName="{mes.displayName}"
-            createdAt="{mes.createdAt}"
-        />
-      </MessageListStyled>
-            <FormStyled>
-              <Form.Item name='message'>
+      {selectedRoom.id ? (
+        <>
+          <HeaderStyled>
+            <div className="header__info">
+              <p className="header__title">{selectedRoom.name}</p>
+              <span className="header__description">
+                {selectedRoom.description}
+              </span>
+            </div>
+            <ButtonGroupStyled>
+              <Button
+                icon={<UserAddOutlined />}
+                type="text"
+                onClick={handleInvite}
+              >
+                Mời
+              </Button>
+              <Avatar.Group size="small" maxCount={2}>
+                {members.map((member) => (
+                  <Tooltip title={member.displayName} key={member.id}>
+                    <Avatar src={member.photoURL}>
+                      {member.photoURL
+                        ? ""
+                        : member.displayName?.charAt(0)?.toUpperCase()}
+                    </Avatar>
+                  </Tooltip>
+                ))}
+              </Avatar.Group>
+            </ButtonGroupStyled>
+          </HeaderStyled>
+          <ContentStyled>
+            <MessageListStyled>
+              {
+                message.map( mes=>
+                  <Message
+                    key={mes.id}
+                    text={mes.text}
+                    photoURL={mes.photoURL}
+                    displayName={mes.displayName}
+                    createdAt={mes.createdAt}
+                  />
+                )
+              }
+              
+            </MessageListStyled>
+            <FormStyled form = {form}>
+              <Form.Item name="message">
                 <Input
-                  onChange={handleInput}
-                  bordered = {false}
-                  autoComplete = 'off'
-                  placeholder='Nhập tin nhấn ..'
+
+                  onChange={handleInputChange}
+                  onPressEnter={handleOnSubmit}
+                  bordered={false}
+                  autoComplete="off"
+                  placeholder="Nhập tin nhấn .."
                 />
               </Form.Item>
-              <Button type='primary' >
-                Gửi
-              </Button>
+              <Button type="primary" onClick={handleOnSubmit} >Gửi</Button>
             </FormStyled>
-      </ContentStyled>
+          </ContentStyled>
+        </>
+      ) : (
+        <Alert
+          message="Hãy chọn phòng"
+          type="info"
+          showIcon
+          style={{ margin: 5 }}
+        ></Alert>
+      )}
     </WrapperStyled>
   );
 }
