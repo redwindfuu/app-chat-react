@@ -90,7 +90,7 @@ export default function InviteMemberModal() {
   const {
     isInviteMemberVisible,
     setIsInviteMemberVisible,
-    selectedRoomId,
+    selectedRoomID,
     selectedRoom,
   } = React.useContext(AppContext);
   const {
@@ -101,7 +101,11 @@ export default function InviteMemberModal() {
   const handleOk = async () => {
     form.resetFields();
     setValue([]);
-    const roomRef = doc(db, "rooms", selectedRoomId);
+    console.log('====================================');
+    console.log(selectedRoomID);
+    console.log('====================================');
+    const roomRef = doc(db, "rooms", selectedRoomID);
+    
     await updateDoc(roomRef, {
       members: [...selectedRoom.members, ...value.map((val) => val.value)],
     });

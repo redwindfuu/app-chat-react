@@ -6,7 +6,7 @@ export const AppContext = React.createContext();
 
 export default function AppProvider({ children }) {
   const [isAddRoomVisible, setIsAddRoomVisible] = useState(false);
-  const [seletedRoomID, setSeletedRoomID] = useState('');
+  const [selectedRoomID, setSelectedRoomID] = useState('');
   const [isInviteMemberVisible, setIsInviteMemberVisible] = useState(false);
   const {
     user: { uid },
@@ -23,8 +23,8 @@ export default function AppProvider({ children }) {
   const rooms = useFirestore("rooms", roomsCondition);
 
   const selectedRoom = React.useMemo(
-    () => rooms.find((room) => room.id === seletedRoomID) || {},
-    [rooms, seletedRoomID]
+    () => rooms.find((room) => room.id === selectedRoomID) || {},
+    [rooms, selectedRoomID]
   );
   const usersCondition = React.useMemo(() => {
     return {
@@ -37,7 +37,7 @@ export default function AppProvider({ children }) {
   const members = useFirestore('users', usersCondition);
 
   const clearState = () => {
-    setSeletedRoomID('');
+    setSelectedRoomID('');
     setIsAddRoomVisible(false);
     setIsInviteMemberVisible(false);
   };
@@ -51,8 +51,8 @@ export default function AppProvider({ children }) {
         selectedRoom,
         isAddRoomVisible,
         setIsAddRoomVisible,
-        seletedRoomID,
-        setSeletedRoomID,
+        selectedRoomID,
+        setSelectedRoomID,
         isInviteMemberVisible,
         setIsInviteMemberVisible,
         clearState,

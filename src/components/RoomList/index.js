@@ -28,7 +28,7 @@ const LinkStyled = styled(Typography.Link)`
 `;
 
 export default function RoomList() {
-  const { rooms, setIsAddRoomVisible , setSeletedRoomID } = React.useContext(AppContext)
+  const { rooms, setIsAddRoomVisible , setSelectedRoomID } = React.useContext(AppContext)
   const handleAddRoom = () => {
     setIsAddRoomVisible(true)
   }
@@ -40,7 +40,7 @@ export default function RoomList() {
             <LinkStyled 
               key={room.id} 
               onClick={
-                () => setSeletedRoomID(room.id)
+                () => setSelectedRoomID(room.id)
               }
             >{room.name}</LinkStyled>
             )
