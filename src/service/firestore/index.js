@@ -1,6 +1,6 @@
 import { collection, addDoc , serverTimestamp } from "firebase/firestore"; 
 import {  db } from '../../config/firebase/config'
-import firebase from 'firebase/app';
+
 
 export const addDocument = async (coll, data) =>{
     try {

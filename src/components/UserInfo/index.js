@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import {signOut} from 'firebase/auth'
 import {auth} from '../../config/firebase/config';
 import { AuthContext } from '../../Utils/Auth'
-import { collection, onSnapshot } from "firebase/firestore";
 const SwapperStyled = styled.div`
     display: flex;
     justify-content: space-between;

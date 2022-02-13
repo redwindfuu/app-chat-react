@@ -1,6 +1,5 @@
 import { Modal, Form, Select, Avatar, Spin } from "antd";
 import React, { useState } from "react";
-import { addDocument } from "../../service/firestore";
 import { AppContext } from "../../Utils/App";
 import { AuthContext } from "../../Utils/Auth";
 import {
